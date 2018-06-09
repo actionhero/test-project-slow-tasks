@@ -2,7 +2,7 @@ exports['default'] = {
   tasks: (api) => {
     return {
       // Should this node run a scheduler to promote delayed tasks?
-      scheduler: false,
+      scheduler: true,
       // what queues should the taskProcessors work?
       queues: ['*'],
       // Logging levels of task workers
@@ -13,7 +13,7 @@ exports['default'] = {
         end: 'info',
         cleaning_worker: 'info',
         poll: 'debug',
-        job: 'debug',
+        job: 'info',
         pause: 'debug',
         internalError: 'error',
         multiWorkerAction: 'debug'
@@ -32,15 +32,15 @@ exports['default'] = {
       timeout: 5000,
       // at minimum, how many parallel taskProcessors should this node spawn?
       // (have number > 0 to enable, and < 1 to disable)
-      minTaskProcessors: 0,
+      minTaskProcessors: 1,
       // at maximum, how many parallel taskProcessors should this node spawn?
-      maxTaskProcessors: 0,
+      maxTaskProcessors: 5,
       // how often should we check the event loop to spawn more taskProcessors?
       checkTimeout: 500,
       // how many ms would constitue an event loop delay to halt taskProcessors spawning?
       maxEventLoopDelay: 5,
       // how long before we mark a resque worker / task processor as stuck/dead?
-      stuckWorkerTimeout: (1000 * 60 * 60),
+      stuckWorkerTimeout: (1000 * 60 * 1),
       // Customize Resque primitives, replace null with required replacement.
       resque_overrides: {
         queue: null,
