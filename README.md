@@ -43,6 +43,8 @@ Error: process stop timeout reached.  terminating now.
 "{\"run_at\":\"Sun Jun 10 2018 13:30:07 GMT-0700 (PDT)\",\"queue\":\"default\",\"payload\":{\"class\":\"slow-task\",\"queue\":\"default\",\"args\":[{}]},\"worker\":\"evantop.local:25478+1\"}"
 ```
 
+![](https://github.com/actionhero/test-project-slow-tasks/blob/master/images/stuck-task.png)
+
 Here we can see the worker `evantop.local:25478+1` was killed off without properly exiting, as there is the data about what it was working on (slow-task in this case).
 
 ## Restarting
@@ -53,3 +55,4 @@ Here we can see the worker `evantop.local:25478+1` was killed off without proper
 ```
 192.168.7.25 @ 2018-06-10T21:42:30.685Z - warning: cleaned stuck worker workerName=evantop.local:35226+1, worker=evantop.local:35226+1, queue=default, class=slow-task, queue=default, args=[], exception=Worker Timeout (killed manually), error=Worker Timeout (killed manually), backtrace=[killed by evantop.local at Sun Jun 10 2018 14:42:30 GMT-0700 (PDT), queue#forceCleanWorker, node-resque], failed_at=Sun Jun 10 2018 14:42:30 GMT-0700 (PDT), delta=43
 ```
+![](https://github.com/actionhero/test-project-slow-tasks/blob/master/images/failed-job.png?raw=true)
