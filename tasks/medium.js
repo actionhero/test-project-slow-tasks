@@ -18,6 +18,6 @@ module.exports = class MyTask extends ActionHero.Task {
   }
 
   async run (data) {
-    await this.sleep(5000)
+    await this.sleep(5 * 1000)
   }
 }

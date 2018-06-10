@@ -1,7 +1,7 @@
 # A Test actionhero project to explore rebooting while a task is running
 *related to https://github.com/actionhero/actionhero/issues/1225*
 
-This project has a few recurring tasks (slow, medium, and fast).  The stuckWorkerTimeout is set to be only 1 minute.  There are 5 taskProcessors running and the task/resque scheduler.  100 "medium" tasks cab be launched with the `taskSpawn` action: `curl localhost:8080/api/taskSpawn`
+This project has a few recurring tasks (slow, medium, and fast).  The stuckWorkerTimeout is set to be only 10 seconds.  There are (up to) 5 taskProcessors running and the task/resque scheduler.  100 "medium" tasks cab be launched with the `taskSpawn` action: `curl localhost:8080/api/taskSpawn`
 
 At any moment, it will be likely at least one task is running.  
 
@@ -34,31 +34,22 @@ Error: process stop timeout reached.  terminating now.
   > redis-cli
 127.0.0.1:6379> keys *
 
-1) "resque:worker:evan.local:11450+2:default:started"
-2) "resque:worker:ping:evan.local:11450+1"
-3) "resque:connection_test_key"
-4) "resque:delayed:1528512041"
-5) "resque:stat:processed:evan.local:11450+1"
-6) "resque:worker:ping:evan.local:11450+4"
-7) "resque:workers"
-8) "resque:timestamps:{\"class\":\"fast-task\",\"queue\":\"default\",\"args\":[{}]}"
-9) "resque:delayed_queue_schedule"
-10) "resque:timestamps:{\"class\":\"medium-task\",\"queue\":\"default\",\"args\":[{}]}"
-11) "resque:stat:processed"
-12) "resque:stat:processed:evan.local:11450+2"
-13) "resque:worker:ping:evan.local:11450+2"
-14) "resque:workerslock:slow-task:default:[{}]"
-15) "resque:worker:evan.local:11450+3:default:started"
-16) "resque:worker:evan.local:11450+4:default:started"
-17) "resque:delayed:1528512046"
-18) "resque:worker:evan.local:11450+1:default:started"
-19) "resque:queues"
-20) "resque:worker:evan.local:11450+1:default"
-21) "resque:worker:ping:evan.local:11450+3"
+...
+13) "resque:worker:evantop.local:25478+1:default"
+...
+
+127.0.0.1:6379> get resque:worker:evantop.local:25478+1:default
+
+"{\"run_at\":\"Sun Jun 10 2018 13:30:07 GMT-0700 (PDT)\",\"queue\":\"default\",\"payload\":{\"class\":\"slow-task\",\"queue\":\"default\",\"args\":[{}]},\"worker\":\"evantop.local:25478+1\"}"
 ```
 
-Here we can see the worker `resque:worker:evan.local:11450` was killed off without properly exiting, as there is the data about what it was working on.  
+Here we can see the worker `evantop.local:25478+1` was killed off without properly exiting, as there is the data about what it was working on (slow-task in this case).
 
 ## Restarting
-0. wait 1 minute for stuckWorkerTimeout to pass.
-1. start your actionhero process back up, without clearing redis.
+0. wait 11 seconds for stuckWorkerTimeout to pass.
+1. start your actionhero process back up, without clearing redis, ie: `ACTIONHERO_SHUTDOWN_TIMEOUT=10000 npm start`.
+2. we can see that within a few seconds, when this process gets the lock to be the scheduler, it will clean the old worker, and move the job it was working on to the failed queue
+
+```
+192.168.7.25 @ 2018-06-10T21:42:30.685Z - warning: cleaned stuck worker workerName=evantop.local:35226+1, worker=evantop.local:35226+1, queue=default, class=slow-task, queue=default, args=[], exception=Worker Timeout (killed manually), error=Worker Timeout (killed manually), backtrace=[killed by evantop.local at Sun Jun 10 2018 14:42:30 GMT-0700 (PDT), queue#forceCleanWorker, node-resque], failed_at=Sun Jun 10 2018 14:42:30 GMT-0700 (PDT), delta=43
+```
